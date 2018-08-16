@@ -1,8 +1,20 @@
 import UIKit
 import PlaygroundSupport
 
+// Operators
+precedencegroup ForwardApplication {
+    associativity: left
+}
+
+infix operator |>: ForwardApplication
+
+func |> <A, B>(_ a: A, _ f: @escaping (A) -> B) -> B {
+    return f(a)
+}
+
 precedencegroup SingleComposition {
     associativity: left
+    higherThan: ForwardApplication
 }
 
 infix operator <>: SingleComposition
@@ -45,8 +57,15 @@ func labelNumberOfLinesStyle(_ numberOfLines: Int) -> (UILabel) -> Void {
     }
 }
 
-let titleLabelStyle = autolayoutStyle <> labelFontStyle(.systemFont(ofSize: 20, weight: .medium)) <> labelTextColorStyle(.darkGray)
-let subtitleLabelStyle = autolayoutStyle <> labelFontStyle(.systemFont(ofSize: 14, weight: .medium)) <> labelTextColorStyle(.lightGray) <> labelTextAlignmentStyle(.center) <> labelNumberOfLinesStyle(0)
+let titleLabelStyle = autolayoutStyle
+    <> labelFontStyle(.systemFont(ofSize: 20, weight: .medium))
+    <> labelTextColorStyle(.darkGray)
+
+let subtitleLabelStyle = autolayoutStyle
+    <> labelFontStyle(.systemFont(ofSize: 14, weight: .medium))
+    <> labelTextColorStyle(.lightGray)
+    <> labelTextAlignmentStyle(.center)
+    <> labelNumberOfLinesStyle(0)
 
 // Button
 func buttonTitleColorStyle(_ color: UIColor) -> (UIButton) -> Void {
@@ -74,7 +93,11 @@ func borderStyle(_ color: UIColor, _ width: CGFloat) -> (UIView) -> Void {
     }
 }
 
-let actionButtonStyle = autolayoutStyle <>  roundedStyle(6) <> borderStyle(.blue, 1) <> buttonTitleColorStyle(.blue) <> buttonTitleFontStyle(.systemFont(ofSize: 20, weight: .medium))
+let actionButtonStyle = autolayoutStyle
+    <> roundedStyle(6)
+    <> borderStyle(.blue, 1)
+    <> buttonTitleColorStyle(.blue)
+    <> buttonTitleFontStyle(.systemFont(ofSize: 20, weight: .medium))
 
 final class SampleViewController: UIViewController {
     override func viewDidLoad() {
@@ -84,7 +107,7 @@ final class SampleViewController: UIViewController {
         
         let titleLabel = UILabel()
         titleLabel.text = "Styling Sample"
-        titleLabelStyle(titleLabel)
+        titleLabel |> titleLabelStyle
         view.addSubview(titleLabel)
         view.addConstraints([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 32),
@@ -95,7 +118,7 @@ final class SampleViewController: UIViewController {
         subtitleLabel.text = """
         Through secure mobile payment, conichi saves time and enables fast check-­in/-out. conichi allows hotels to cleverly upsell and directly communicate with guests through push-notifications. Prior to arrival, shared guest preferences and profiles enhance personal interaction. conichi has been developed to work with virtually any hotel’s property management system, enabling simple implementation for both independent hotel properties and chains.
         """
-        subtitleLabelStyle(subtitleLabel)
+        subtitleLabel |> subtitleLabelStyle
         view.addSubview(subtitleLabel)
         view.addConstraints([
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
@@ -105,7 +128,7 @@ final class SampleViewController: UIViewController {
         
         let actionButton = UIButton(type: .system)
         actionButton.setTitle("Do Something", for: .normal)
-        actionButtonStyle(actionButton)
+        actionButton |> actionButtonStyle
         view.addSubview(actionButton)
         view.addConstraints([
             actionButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -32),
