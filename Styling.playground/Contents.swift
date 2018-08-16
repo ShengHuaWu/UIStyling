@@ -1,6 +1,81 @@
 import UIKit
 import PlaygroundSupport
 
+precedencegroup SingleComposition {
+    associativity: left
+}
+
+infix operator <>: SingleComposition
+
+func <> <A: AnyObject>(_ f: @escaping (A) -> Void,
+                       _ g: @escaping (A) -> Void) -> (A) -> Void {
+    return { a in
+        f(a)
+        g(a)
+    }
+}
+
+// Autolayout
+func autolayoutStyle(_ view: UIView) {
+    view.translatesAutoresizingMaskIntoConstraints = false
+}
+
+// Label
+func labelFontStyle(_ font: UIFont) -> (UILabel) -> Void {
+    return {
+        $0.font = font
+    }
+}
+
+func labelTextColorStyle(_ color: UIColor) -> (UILabel) -> Void {
+    return {
+        $0.textColor = color
+    }
+}
+
+func labelTextAlignmentStyle(_ alignment: NSTextAlignment) -> (UILabel) -> Void {
+    return {
+        $0.textAlignment = alignment
+    }
+}
+
+func labelNumberOfLinesStyle(_ numberOfLines: Int) -> (UILabel) -> Void {
+    return {
+        $0.numberOfLines = numberOfLines
+    }
+}
+
+let titleLabelStyle = autolayoutStyle <> labelFontStyle(.systemFont(ofSize: 20, weight: .medium)) <> labelTextColorStyle(.darkGray)
+let subtitleLabelStyle = autolayoutStyle <> labelFontStyle(.systemFont(ofSize: 14, weight: .medium)) <> labelTextColorStyle(.lightGray) <> labelTextAlignmentStyle(.center) <> labelNumberOfLinesStyle(0)
+
+// Button
+func buttonTitleColorStyle(_ color: UIColor) -> (UIButton) -> Void {
+    return {
+        $0.setTitleColor(color, for: .normal)
+    }
+}
+
+func buttonTitleFontStyle(_ font: UIFont) -> (UIButton) -> Void {
+    return {
+        $0.titleLabel?.font = font
+    }
+}
+
+func roundedStyle(_ radius: CGFloat) -> (UIView) -> Void {
+    return {
+        $0.layer.cornerRadius = radius
+    }
+}
+
+func borderStyle(_ color: UIColor, _ width: CGFloat) -> (UIView) -> Void {
+    return {
+        $0.layer.borderColor = color.cgColor
+        $0.layer.borderWidth = width
+    }
+}
+
+let actionButtonStyle = autolayoutStyle <>  roundedStyle(6) <> borderStyle(.blue, 1) <> buttonTitleColorStyle(.blue) <> buttonTitleFontStyle(.systemFont(ofSize: 20, weight: .medium))
+
 final class SampleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -9,9 +84,7 @@ final class SampleViewController: UIViewController {
         
         let titleLabel = UILabel()
         titleLabel.text = "Styling Sample"
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-        titleLabel.textColor = .darkGray
+        titleLabelStyle(titleLabel)
         view.addSubview(titleLabel)
         view.addConstraints([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 32),
@@ -22,11 +95,7 @@ final class SampleViewController: UIViewController {
         subtitleLabel.text = """
         Through secure mobile payment, conichi saves time and enables fast check-­in/-out. conichi allows hotels to cleverly upsell and directly communicate with guests through push-notifications. Prior to arrival, shared guest preferences and profiles enhance personal interaction. conichi has been developed to work with virtually any hotel’s property management system, enabling simple implementation for both independent hotel properties and chains.
         """
-        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        subtitleLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        subtitleLabel.textColor = .lightGray
-        subtitleLabel.textAlignment = .center
-        subtitleLabel.numberOfLines = 0
+        subtitleLabelStyle(subtitleLabel)
         view.addSubview(subtitleLabel)
         view.addConstraints([
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
@@ -36,12 +105,7 @@ final class SampleViewController: UIViewController {
         
         let actionButton = UIButton(type: .system)
         actionButton.setTitle("Do Something", for: .normal)
-        actionButton.translatesAutoresizingMaskIntoConstraints = false
-        actionButton.setTitleColor(.blue, for: .normal)
-        actionButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-        actionButton.layer.cornerRadius = 6
-        actionButton.layer.borderColor = UIColor.blue.cgColor
-        actionButton.layer.borderWidth = 1
+        actionButtonStyle(actionButton)
         view.addSubview(actionButton)
         view.addConstraints([
             actionButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -32),
