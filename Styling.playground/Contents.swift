@@ -1,62 +1,7 @@
 import UIKit
 import PlaygroundSupport
 
-// Operators
-precedencegroup ForwardApplication {
-    associativity: left
-}
-
-infix operator |>: ForwardApplication
-
-func |> <A, B>(_ a: A, _ f: @escaping (A) -> B) -> B {
-    return f(a)
-}
-
-precedencegroup SingleComposition {
-    associativity: left
-    higherThan: ForwardApplication
-}
-
-infix operator <>: SingleComposition
-
-func <> <A: AnyObject>(_ f: @escaping (A) -> Void,
-                       _ g: @escaping (A) -> Void) -> (A) -> Void {
-    return { a in
-        f(a)
-        g(a)
-    }
-}
-
-// Autolayout
-func autolayoutStyle(_ view: UIView) {
-    view.translatesAutoresizingMaskIntoConstraints = false
-}
-
 // Label
-func labelFontStyle(_ font: UIFont) -> (UILabel) -> Void {
-    return {
-        $0.font = font
-    }
-}
-
-func labelTextColorStyle(_ color: UIColor) -> (UILabel) -> Void {
-    return {
-        $0.textColor = color
-    }
-}
-
-func labelTextAlignmentStyle(_ alignment: NSTextAlignment) -> (UILabel) -> Void {
-    return {
-        $0.textAlignment = alignment
-    }
-}
-
-func labelNumberOfLinesStyle(_ numberOfLines: Int) -> (UILabel) -> Void {
-    return {
-        $0.numberOfLines = numberOfLines
-    }
-}
-
 let titleLabelStyle = autolayoutStyle
     <> labelFontStyle(.systemFont(ofSize: 20, weight: .medium))
     <> labelTextColorStyle(.darkGray)
@@ -68,32 +13,7 @@ let subtitleLabelStyle = autolayoutStyle
     <> labelNumberOfLinesStyle(0)
 
 // Button
-func buttonTitleColorStyle(_ color: UIColor) -> (UIButton) -> Void {
-    return {
-        $0.setTitleColor(color, for: .normal)
-    }
-}
-
-func buttonTitleFontStyle(_ font: UIFont) -> (UIButton) -> Void {
-    return {
-        $0.titleLabel?.font = font
-    }
-}
-
-func roundedStyle(_ radius: CGFloat) -> (UIView) -> Void {
-    return {
-        $0.layer.cornerRadius = radius
-    }
-}
-
-func borderStyle(_ color: UIColor, _ width: CGFloat) -> (UIView) -> Void {
-    return {
-        $0.layer.borderColor = color.cgColor
-        $0.layer.borderWidth = width
-    }
-}
-
-let actionButtonStyle = autolayoutStyle
+let actionRoundedButtonStyle = autolayoutStyle
     <> roundedStyle(6)
     <> borderStyle(.blue, 1)
     <> buttonTitleColorStyle(.blue)
@@ -128,7 +48,7 @@ final class SampleViewController: UIViewController {
         
         let actionButton = UIButton(type: .system)
         actionButton.setTitle("Do Something", for: .normal)
-        actionButton |> actionButtonStyle
+        actionButton |> actionRoundedButtonStyle
         view.addSubview(actionButton)
         view.addConstraints([
             actionButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -32),
