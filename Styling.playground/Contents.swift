@@ -1,104 +1,39 @@
 import UIKit
 import PlaygroundSupport
 
-// Operators
-precedencegroup ForwardApplication {
-    associativity: left
+// Base Styles
+func autolayoutStyle<V: UIView>() -> (V) -> Void {
+    return mut(\V.translatesAutoresizingMaskIntoConstraints, false)
 }
 
-infix operator |>: ForwardApplication
+// Label Styles
+let titleLabelStyle = autolayoutStyle()
+    <> mut(\UILabel.font, .systemFont(ofSize: 20, weight: .medium))
+    <> mut(\.textColor, .darkGray)
 
-func |> <A, B>(_ a: A, _ f: @escaping (A) -> B) -> B {
-    return f(a)
-}
+let subtitleLabelStyle = autolayoutStyle()
+    <> mut(\UILabel.font, .systemFont(ofSize: 14, weight: .medium))
+    <> mut(\.textColor, .lightGray)
+    <> mut(\.textAlignment, .center)
+    <> mut(\.numberOfLines, 0)
 
-precedencegroup SingleComposition {
-    associativity: left
-    higherThan: ForwardApplication
-}
-
-infix operator <>: SingleComposition
-
-func <> <A: AnyObject>(_ f: @escaping (A) -> Void,
-                       _ g: @escaping (A) -> Void) -> (A) -> Void {
-    return { a in
-        f(a)
-        g(a)
+// Button Styles
+extension UIButton {
+    var normalTitleColor: UIColor? {
+        set { setTitleColor(newValue, for: .normal) }
+        get { return titleColor(for: .normal) }
     }
 }
 
-// Autolayout
-func autolayoutStyle(_ view: UIView) {
-    view.translatesAutoresizingMaskIntoConstraints = false
-}
+let actionButtonStyle = autolayoutStyle()
+    <> mut(\UIButton.layer.cornerRadius, 6)
+    <> mut(\.layer.borderColor!, UIColor.blue.cgColor)
+    <> mut(\.layer.borderWidth, 1)
+    <> mut(\.normalTitleColor, .blue)
+    <> mut(\.titleLabel!.font, .systemFont(ofSize: 20, weight: .medium))
 
-// Label
-func labelFontStyle(_ font: UIFont) -> (UILabel) -> Void {
-    return {
-        $0.font = font
-    }
-}
 
-func labelTextColorStyle(_ color: UIColor) -> (UILabel) -> Void {
-    return {
-        $0.textColor = color
-    }
-}
-
-func labelTextAlignmentStyle(_ alignment: NSTextAlignment) -> (UILabel) -> Void {
-    return {
-        $0.textAlignment = alignment
-    }
-}
-
-func labelNumberOfLinesStyle(_ numberOfLines: Int) -> (UILabel) -> Void {
-    return {
-        $0.numberOfLines = numberOfLines
-    }
-}
-
-let titleLabelStyle = autolayoutStyle
-    <> labelFontStyle(.systemFont(ofSize: 20, weight: .medium))
-    <> labelTextColorStyle(.darkGray)
-
-let subtitleLabelStyle = autolayoutStyle
-    <> labelFontStyle(.systemFont(ofSize: 14, weight: .medium))
-    <> labelTextColorStyle(.lightGray)
-    <> labelTextAlignmentStyle(.center)
-    <> labelNumberOfLinesStyle(0)
-
-// Button
-func buttonTitleColorStyle(_ color: UIColor) -> (UIButton) -> Void {
-    return {
-        $0.setTitleColor(color, for: .normal)
-    }
-}
-
-func buttonTitleFontStyle(_ font: UIFont) -> (UIButton) -> Void {
-    return {
-        $0.titleLabel?.font = font
-    }
-}
-
-func roundedStyle(_ radius: CGFloat) -> (UIView) -> Void {
-    return {
-        $0.layer.cornerRadius = radius
-    }
-}
-
-func borderStyle(_ color: UIColor, _ width: CGFloat) -> (UIView) -> Void {
-    return {
-        $0.layer.borderColor = color.cgColor
-        $0.layer.borderWidth = width
-    }
-}
-
-let actionButtonStyle = autolayoutStyle
-    <> roundedStyle(6)
-    <> borderStyle(.blue, 1)
-    <> buttonTitleColorStyle(.blue)
-    <> buttonTitleFontStyle(.systemFont(ofSize: 20, weight: .medium))
-
+// View Controller
 final class SampleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
