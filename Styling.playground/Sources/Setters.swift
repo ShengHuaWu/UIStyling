@@ -1,3 +1,4 @@
+import UIKit
 import Foundation
 
 public func mver<Root, Value>(
@@ -15,4 +16,10 @@ public func mut<Root, Value>(
     )
     -> (Root) -> Void {
         return mver(kp) { $0 = value }
+}
+
+public func mutate<Root: UIView, Value>(_ kp: ReferenceWritableKeyPath<Root, Value>, _ value: Value) -> (Root) -> () {
+    return { root in
+        root[keyPath: kp] = value
+    }
 }

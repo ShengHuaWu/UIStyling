@@ -2,20 +2,20 @@ import UIKit
 import PlaygroundSupport
 
 // Base Styles
-func autolayoutStyle<V: UIView>() -> (V) -> Void {
-    return mut(\V.translatesAutoresizingMaskIntoConstraints, false)
+func autolayoutStyle<V: UIView>(_ view: V) {
+    view.translatesAutoresizingMaskIntoConstraints = false
 }
 
 // Label Styles
-let titleLabelStyle = autolayoutStyle()
-    <> mut(\UILabel.font, .systemFont(ofSize: 20, weight: .medium))
-    <> mut(\.textColor, .darkGray)
+let titleLabelStyle = autolayoutStyle
+    <> mutate(\UILabel.font, .systemFont(ofSize: 20, weight: .medium))
+    <> mutate(\.textColor, .darkGray)
 
-let subtitleLabelStyle = autolayoutStyle()
-    <> mut(\UILabel.font, .systemFont(ofSize: 14, weight: .medium))
-    <> mut(\.textColor, .lightGray)
-    <> mut(\.textAlignment, .center)
-    <> mut(\.numberOfLines, 0)
+let subtitleLabelStyle = autolayoutStyle
+    <> mutate(\UILabel.font, .systemFont(ofSize: 14, weight: .medium))
+    <> mutate(\.textColor, .lightGray)
+    <> mutate(\.textAlignment, .center)
+    <> mutate(\.numberOfLines, 0)
 
 // Button Styles
 extension UIButton {
@@ -23,14 +23,32 @@ extension UIButton {
         set { setTitleColor(newValue, for: .normal) }
         get { return titleColor(for: .normal) }
     }
+    
+    var titleFont: UIFont? {
+        set { titleLabel?.font = newValue }
+        get { return titleLabel?.font }
+    }
 }
 
-let actionRoundedButtonStyle = autolayoutStyle()
-    <> mut(\UIButton.layer.cornerRadius, 6)
-    <> mut(\.layer.borderColor!, UIColor.blue.cgColor)
-    <> mut(\.layer.borderWidth, 1)
-    <> mut(\.normalTitleColor, .blue)
-    <> mut(\.titleLabel!.font, .systemFont(ofSize: 20, weight: .medium))
+func borderStyle<V: UIView>(_ color: UIColor, _ width: CGFloat) -> (V) -> () {
+    return {
+        $0.layer.borderColor = color.cgColor
+        $0.layer.borderWidth = width
+    }
+}
+
+func cornerStyle<V: UIView>(_ radius: CGFloat) -> (V) -> () {
+    return {
+        $0.layer.cornerRadius = radius
+        $0.clipsToBounds = true
+    }
+}
+
+let actionRoundedButtonStyle = autolayoutStyle
+    <> cornerStyle(6)
+    <> borderStyle(.blue, 1)
+    <> mutate(\UIButton.normalTitleColor, .blue)
+    <> mutate(\.titleFont, .systemFont(ofSize: 20, weight: .medium))
 
 // View Controller
 final class SampleViewController: UIViewController {
